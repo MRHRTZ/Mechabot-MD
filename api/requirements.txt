@@ -1,0 +1,6 @@
+flask
+requests
+python-dotenv
+beautifulsoup4
+youtube-dl
+flask_restplus
