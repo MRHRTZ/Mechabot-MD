@@ -1,11 +1,12 @@
-const path = require('path')
+import * as path from 'path'
+import { spawn } from 'child_process'
+
 require('dotenv').config({ path: (path.join(__dirname, '../../.env')) })
-const { spawn } = require('child_process')
 
 let pyenv = process.env.python
-let pyApiPath = path.join(__dirname, 'plugins', 'app.py')
+let pyApiPath = path.join(__dirname, 'app.py')
 
-const api = spawn(pyenv, [pyApiPath]);
+const api = spawn(pyenv!, [pyApiPath]);
 
 api.stdout.on('data', (data) => {
   console.log(data?.toString());

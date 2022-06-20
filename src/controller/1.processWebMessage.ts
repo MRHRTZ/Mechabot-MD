@@ -1,5 +1,5 @@
 import { proto, AnyWASocket, MessageUpdateType, getContentType, jidDecode, downloadMediaMessage, isJidUser, AnyMessageContent, MessageType } from '@adiwajshing/baileys'
-import { MessageMaterial } from '../lib/Types/types'
+import { MessageMaterial } from '../lib/Types/ProcessWebMessageTypes'
 import * as dotenv from 'dotenv'
 import * as path from 'path'
 
@@ -8,7 +8,6 @@ dotenv.config({ path: path.join(__dirname, '../../.env') })
 export default function processMessage(conn: AnyWASocket, m: { messages: proto.IWebMessageInfo[], type: MessageUpdateType }) {
     const msg: proto.IWebMessageInfo = m.messages[0]
     if (!msg.message) return
-    console.log(JSON.stringify(msg, null, 2))
 
     let sender = isJidUser(msg.key.remoteJid!) ? msg.key.remoteJid : (msg.key.remoteJid?.includes('g.us') ? (msg.key.participant || msg.participant) : msg.key.remoteJid)
     let type = getContentType(msg.message!) ?? Object.keys(msg.message!)[0]
@@ -36,22 +35,26 @@ export default function processMessage(conn: AnyWASocket, m: { messages: proto.I
                             type == 'listResponseMessage' ? msg.message?.ephemeralMessage?.message?.listResponseMessage?.singleSelectReply?.selectedRowId : ''
     ) : ''
     let cmd = body?.toLowerCase().split(" ")[0] || "";
-    let prefix = /^[°•π÷×¶∆£¢€¥®™✓_=|~!?@#$%^&.\/\\©^]/.test(cmd) ? cmd.match(/^[°•π÷×¶∆£¢€¥®™✓_=|~!?@#$%^&.\/\\©^]/gi) : "";
-
+    let prefix = /^[°•π÷×¶∆£¢€¥®™✓_=|~!?@#$%^&.\/\\©^]/.test(cmd) ? cmd.match(/^[°•π÷×¶∆£¢€¥®™✓_=|~!?@#$%^&.\/\\©^]/gi) : "mecha";
+    let isGroup = msg.key.remoteJid?.includes('g.us')
+    
     var obj: MessageMaterial = {
-        from: msg.key.remoteJid,
+        from: msg.key.fromMe ? 'Me' : msg.key.remoteJid,
         pushname: msg.pushName,
         fromMe: msg.key.fromMe,
         sender: jidDecode(sender!).user,
         type,
+        isGroup,
         isOwner: process.env.owner_jid!.split(',').includes(jidDecode(sender!).user),
         args: body?.split(/ +/g) ?? [],
-        command: prefix! + cmd!,
+        isCommand: body?.startsWith(prefix as string),
+        command: cmd!.replace(prefix as string, ''),
         body,
         mentions: msg.message?.extendedTextMessage?.contextInfo?.mentionedJid ?? [],
         isMedia: (type == 'imageMessage') || (type == 'videoMessage') || (type == 'audioMessage') || (type == 'stickerMessage') || (type == 'documentMessage'),
         getBuffer: async () => await downloadMediaMessage(msg, 'buffer', {}),
         replyMessage: async (messageContent: AnyMessageContent) => await conn.sendMessage(msg.key.remoteJid!, messageContent, { quoted: msg }),
+        revokeMessage: async () => await conn.sendMessage(msg.key.remoteJid!, { delete: msg.key }),
         quoted: {
             isMedia: (quotedType == 'imageMessage') || (quotedType == 'videoMessage') || (quotedType == 'audioMessage') || (quotedType == 'stickerMessage') || (quotedType == 'documentMessage'),
             isQuoted: msg.message?.extendedTextMessage?.contextInfo?.quotedMessage ? true : false,
@@ -79,7 +82,8 @@ export default function processMessage(conn: AnyWASocket, m: { messages: proto.I
                                     type == 'listResponseMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.listResponseMessage?.singleSelectReply?.selectedRowId : ''
             ) : '',
             getBuffer: async () => await downloadMediaMessage(msg.message?.extendedTextMessage?.contextInfo?.quotedMessage as proto.IWebMessageInfo, 'buffer', {})
-        }
+        },
+        getGroupMetadata: async () => await conn.groupMetadata(msg.key.remoteJid!, false)
     }
 
     return obj

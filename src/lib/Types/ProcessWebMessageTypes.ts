@@ -1,4 +1,4 @@
-import { AnyMessageContent, proto, MessageType } from '@adiwajshing/baileys'
+import { AnyMessageContent, proto, MessageType, GroupMetadata } from '@adiwajshing/baileys'
 
 interface QuotedMaterial {
     isMedia: boolean;
@@ -16,12 +16,16 @@ interface MessageMaterial {
     type: MessageType;
     isOwner: boolean | undefined;
     args: string[],
+    isCommand: boolean | undefined;
     command: string | undefined | null;
     body: string | null | undefined;
     mentions: string[],
     isMedia: boolean,
     getBuffer: () => Promise<any>;
     replyMessage: (anyMessageContent: AnyMessageContent) => Promise<any>;
+    revokeMessage: () => Promise<any>;
+    isGroup: boolean | undefined;
+    getGroupMetadata: () => Promise<GroupMetadata | null | undefined>;
     quoted: QuotedMaterial
 }
 
