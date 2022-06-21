@@ -1,6 +1,7 @@
 import * as mysql from 'mysql'
 import * as path from 'path'
 import * as dotenv from 'dotenv'
+import { logger } from './Utils';
 
 dotenv.config({ path: path.join(__dirname, '..', '..', '.env') })
 
@@ -17,6 +18,8 @@ var DB = (function () {
         pool.getConnection(function (err, connection) {
             if (err) {
                 callback(null, err);
+                // logger(err, 'error');
+                
                 throw err;
             }
 
@@ -25,12 +28,16 @@ var DB = (function () {
                     connection.release();
                     callback(rows);
                 } else {
+                    // logger(err, 'error');
+
                     callback(null, err);
                 }
             });
 
             connection.on('error', function (err) {
                 callback(null, err);
+                // logger(err, 'error');
+
                 throw err;
             });
         });

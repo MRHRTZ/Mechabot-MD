@@ -1,6 +1,6 @@
 import makeWASocket, { DisconnectReason, useMultiFileAuthState, proto, AnyWASocket } from '@adiwajshing/baileys'
 import { Boom } from '@hapi/boom'
-import { getWAVersion, showTitle, logger } from '../lib/Utils'
+import { getWAVersion, showTitle, logger, registerFeature } from '../lib/Utils'
 import handleMessage from './2.handleMessage'
 import P from 'pino'
 import processMessage from './1.processWebMessage'
@@ -8,7 +8,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 
 showTitle()
-logger(`Watching ${fs.readdirSync(path.join(__dirname, 'features')).length} features!`)
+logger(`Loading scripts ...`)
 async function connectMecha() {
     try {
         logger('Waiting for connection...', 'info')

@@ -5,10 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "node ./test",
-    "start": "npx ts-node src/app/app.ts --no-cache",
-    "build": "cd node_modules/@adiwajshing/baileys && yarn build:tsc",
-    "patch:version": "npx ts-node build/build-module.ts",
-    "start:api": "npx ts-node src/api/RunAPI.ts "
+    "start": "node ./bin/app/app.js",
+    "start:dev": "ts-node ./src/app/app.ts --no-cache",
+    "build": "tsc",
+    "build:lib": "tsc --project ./node_modules/@adiwajshing/baileys/tsconfig.json",
+    "build:clean": "ts-node ./build/clean-build.ts",
+    "patch:version": "ts-node build/build-module.ts",
+    "start:api": "node ./bin/api/RunAPI.js "
   },
   "repository": {
     "type": "git",
@@ -27,12 +30,15 @@
     "@adiwajshing/keyed-db": "^0.2.4",
     "@hapi/boom": "^10.0.0",
     "@types/figlet": "^1.5.4",
+    "@types/fs-extra": "^9.0.13",
     "@types/mysql": "^2.15.21",
     "axios": "^0.26.0",
     "chalk": "4.1.2",
     "cheerio": "^1.0.0-rc.10",
+    "chokidar": "^3.5.3",
     "dotenv": "^14.2.0",
     "figlet": "^1.5.2",
+    "fs-extra": "^10.1.0",
     "jimp": "^0.16.1",
     "link-preview-js": "^2.1.15",
     "moment": "^2.29.3",

@@ -19,7 +19,8 @@ export default class Menu {
         return new Promise((resolve, reject) => {
             const columns = Object.keys(params);
             const values = Object.values(params);
-            var sSQL = `INSERT INTO ${this._table}('"${columns.join("','")}"') VALUES (`
+            if (columns.length == 0) return reject({ status: false, message: 'no parameter' })
+            var sSQL = `INSERT INTO ${this._table}(${columns.join(",")}) VALUES (`
             for (let i = 0; i < values.length; i++) {
                 sSQL += "?";
                 if (i !== values.length - 1) {
@@ -27,7 +28,7 @@ export default class Menu {
                 }
             }
             sSQL += ")"
-            DB.query(sSQL, null, (data, err) => {
+            DB.query(sSQL, values, (data, err) => {                
                 if (err) return reject({ status: false, message: err })
                 resolve({ status: true, message: data })
             })
@@ -36,8 +37,11 @@ export default class Menu {
 
     public update: (params: MenuFieldUpdate) => Promise<queryStatus> = (params: MenuFieldUpdate) => {
         return new Promise((resolve, reject) => {
-            var sSQL = `UPDATE ${this._table} "${Object.keys(params).join("' = ? ,'")}"' = ? WHERE name="${params.oldname}"`
-            DB.query(sSQL, Object.values(params), (data, err) => {
+            const columns = Object.keys(params)
+            const values = Object.values(params);
+            var sSQL = `UPDATE ${this._table} SET ${columns.join(" = ?, ")} = ? WHERE module_id="${params.module_id}"`
+            if (columns.length == 0) return reject({ status: false, message: 'no parameter' })
+            DB.query(sSQL, values, (data, err) => {
                 if (err) return reject({ status: false, message: err })
                 resolve({ status: true, message: data })
             })

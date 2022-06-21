@@ -1,6 +1,8 @@
 interface MenuField {
+    module_id?: number;
     name?: string;
     description?: string;
+    required?: string;
     modulePath?: string;
     featureStatus?: string;
     triggerMsg?: string;
@@ -8,9 +10,10 @@ interface MenuField {
 }
 
 interface MenuFieldUpdate {
-    oldname?: string;
+    module_id?: number;
     name?: string;
     description?: string;
+    required?: string;
     modulePath?: string;
     featureStatus?: string;
     triggerMsg?: string;
