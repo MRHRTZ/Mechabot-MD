@@ -1,4 +1,4 @@
-import { AnyWASocket } from '@adiwajshing/baileys'
+import { WASocket } from '@adiwajshing/baileys'
 import { MessageMaterial } from '../lib/Types/ProcessWebMessageTypes'
 import * as utils from '../lib/Utils'
 import { format } from 'util'
@@ -8,7 +8,7 @@ import { MenuField } from '../lib/Types/Menu'
 
 utils.registerFeature(path.join(__dirname, 'features'))
 
-export default async function handleMessage(sock: AnyWASocket, _: MessageMaterial) {
+export default async function handleMessage(sock: WASocket, _: MessageMaterial) {
     if (!_ || _.type == 'senderKeyDistributionMessage') return
     utils.logger('', 'body', _);
     const moduleDir = path.join(__dirname, 'features')

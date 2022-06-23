@@ -1,4 +1,4 @@
-import makeWASocket, { DisconnectReason, useMultiFileAuthState, proto, AnyWASocket } from '@adiwajshing/baileys'
+import makeWASocket, { DisconnectReason, useMultiFileAuthState, proto, WASocket } from '@adiwajshing/baileys'
 import { Boom } from '@hapi/boom'
 import { getWAVersion, showTitle, logger, registerFeature } from '../lib/Utils'
 import handleMessage from './2.handleMessage'
@@ -34,7 +34,7 @@ async function connectMecha() {
             }
         })
         sock.ev.on('messages.upsert', async m => {
-            handleMessage(sock, processMessage(sock as AnyWASocket, m)!)
+            handleMessage(sock, processMessage(sock as WASocket, m)!)
         })
 
         sock.ev.on('creds.update', saveCreds)

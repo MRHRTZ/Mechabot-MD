@@ -1,11 +1,11 @@
-import { proto, AnyWASocket, MessageUpdateType, getContentType, jidDecode, downloadMediaMessage, isJidUser, AnyMessageContent, MessageType } from '@adiwajshing/baileys'
+import { proto, WASocket, MessageUpdateType, getContentType, jidDecode, downloadMediaMessage, isJidUser, AnyMessageContent, MessageType } from '@adiwajshing/baileys'
 import { MessageMaterial } from '../lib/Types/ProcessWebMessageTypes'
 import * as dotenv from 'dotenv'
 import * as path from 'path'
 
 dotenv.config({ path: path.join(__dirname, '../../.env') })
 
-export default function processMessage(conn: AnyWASocket, m: { messages: proto.IWebMessageInfo[], type: MessageUpdateType }) {
+export default function processMessage(conn: WASocket, m: { messages: proto.IWebMessageInfo[], type: MessageUpdateType }) {
     const msg: proto.IWebMessageInfo = m.messages[0]
     if (!msg.message) return
 
@@ -83,7 +83,7 @@ export default function processMessage(conn: AnyWASocket, m: { messages: proto.I
             ) : '',
             getBuffer: async () => await downloadMediaMessage(msg.message?.extendedTextMessage?.contextInfo?.quotedMessage as proto.IWebMessageInfo, 'buffer', {})
         },
-        getGroupMetadata: async () => await conn.groupMetadata(msg.key.remoteJid!, false)
+        getGroupMetadata: async () => await conn.groupMetadata(msg.key.remoteJid!)
     }
 
     return obj
