@@ -25,7 +25,7 @@ export default function instagram(sock?: WASocket, m?: MessageMaterial) {
     // Place your code here
     m?.getGroupMetadata()
     .then((gc) => {
-        let admins = gc?.participants.filter(v => v.admin).map(v => v.id)
+        let admins = gc?.participants
         // sock?.sendMessage(m?.from!, { text: util.format(gc) })
         sock?.sendMessage(m?.from!, { text: util.format(admins) })
     }).catch(e => {
