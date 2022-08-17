@@ -7,8 +7,11 @@
 
 # Installation
 - yarn build
+- yarn build:lib
 - yarn patch:version
 - mysql -u username -p db_mecha < src/db/mechav3.sql
 
 # start
 - yarn start
+## or
+- yarn start:dev
