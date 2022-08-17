@@ -1,16 +1,16 @@
-import { proto, WASocket, MessageUpdateType, getContentType, jidDecode, downloadMediaMessage, isJidUser, AnyMessageContent, MessageType } from '@adiwajshing/baileys'
+import { proto, WASocket, MessageUpsertType, getContentType, jidDecode, downloadMediaMessage, isJidUser, AnyMessageContent, MessageType } from '@adiwajshing/baileys'
 import { MessageMaterial } from '../lib/Types/ProcessWebMessageTypes'
 import * as dotenv from 'dotenv'
 import * as path from 'path'
 
 dotenv.config({ path: path.join(__dirname, '../../.env') })
 
-export default function processMessage(conn: WASocket, m: { messages: proto.IWebMessageInfo[], type: MessageUpdateType }) {
+export default function processMessage(conn: WASocket, m: { messages: proto.IWebMessageInfo[], type: MessageUpsertType }) {
     const msg: proto.IWebMessageInfo = m.messages[0]
     if (!msg.message) return
 
     let sender = isJidUser(msg.key.remoteJid!) ? msg.key.remoteJid : (msg.key.remoteJid?.includes('g.us') ? (msg.key.participant || msg.participant) : msg.key.remoteJid)
-    let type = getContentType(msg.message!) ?? Object.keys(msg.message!)[0]
+    let type: any = getContentType(msg.message!) ?? Object.keys(msg.message!)[0]
     let quotedType = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage ? (getContentType(msg.message?.extendedTextMessage?.contextInfo?.quotedMessage!) ?? Object.keys(msg.message?.extendedTextMessage?.contextInfo?.quotedMessage!)[0]) : ''
     let body = String(type) != 'viewOnceMessage' || String(type) != 'ephemeralMessage' ? (
         type == 'conversation' ? msg.message?.conversation :
@@ -51,10 +51,10 @@ export default function processMessage(conn: WASocket, m: { messages: proto.IWeb
         from: msg.key.remoteJid,
         pushname: msg.key.fromMe ? process.env.botname : msg.pushName,
         fromMe: msg.key.fromMe,
-        sender: jidDecode(sender!).user,
+        sender: jidDecode(sender!)!.user,
         type,
         isGroup,
-        isOwner: process.env.owner_jid!.split(',').includes(jidDecode(sender!).user),
+        isOwner: process.env.owner_jid!.split(',').includes(jidDecode(sender!) ? jidDecode(sender!)!.user : sender?.split(/:|@/)![0]!),
         args: body?.split(/ +/g) ?? [],
         isCommand: body?.startsWith(prefix as string),
         command: cmd!.replace(prefix as string, ''),
