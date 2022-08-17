@@ -8,7 +8,7 @@ import * as util from 'util'
 import Menu from "../../models/Menu";
 
 export default async function menu(sock?: WASocket, m?: MessageMaterial) {
-    const _trigger: string[] = ['menu']
+    const _trigger: string[] = ['menu', 'help']
     const usingCmd: boolean = !m!.isCommand!
     const _params_require: string[] = ['']
     var _obj: MenuField = {

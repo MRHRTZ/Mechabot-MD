@@ -26,7 +26,7 @@ export default async function youtubePlay(sock?: WASocket, m?: MessageMaterial, 
     if (_obj.featureStatus != 'active' && !m?.isOwner) return _obj
     if (m!.fromMe) return _obj
     const userInput = new Input()
-    if ((m?.args?.length! > 1 && m?.isCommand || input && !m?.isCommand) && m?.args[1] != 'convert') {
+    if ((m?.args?.length! > 1 && m?.isCommand || input && !m?.isCommand) && m?.args[1] != 'convert' && m?.command != 'ytdownload') {
         const waitMsg = await utils.waitMessage(sock!, m!, "Sedang mencari data video / _Searching video data_ ...")
         userInput.update({ jid: `${m?.from}_${m?.sender}`, feature: path.basename(__filename) + utils.timeTags(8), is_input: "T", value: m?.body! }).catch(console.log);
         let query: string | undefined = ''

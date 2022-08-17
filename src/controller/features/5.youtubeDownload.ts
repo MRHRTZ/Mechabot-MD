@@ -25,7 +25,6 @@ export default async function youtubeDL(sock?: WASocket, m?: MessageMaterial) {
     if (!_trigger.includes(m!.command!)) return _obj
     // Place your code here
     const args = m!.args
-    console.log(args);
     
     if (args.length == 2) {
         const youtubeURL = args[1]
@@ -70,7 +69,6 @@ export default async function youtubeDL(sock?: WASocket, m?: MessageMaterial) {
     } else if (args.length > 2 && args[1] == 'convert') {
         const jsonData = JSON.parse(args.slice(2).join(' '));
         const { service, analyze_id, video_id, type, quality, title, thumbnail } = jsonData;
-        console.log(jsonData);
         
         getDownloadURL({ service, analyze_id, video_id, type, quality })
             .then(async (dURL) => {
