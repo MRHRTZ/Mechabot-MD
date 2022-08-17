@@ -17,4 +17,15 @@ export default async function handleMessage(sock: WASocket, _: MessageMaterial) 
         const menuObj: MenuField = await require(modulePath).default(sock, _)
         await utils.updateMenuDB(menuObj)
     }
+    utils.getInputList()
+        .then(async(inputList) => {
+            for (let inputObj of inputList) {
+                let isFrom = new RegExp(_.from!, 'g')
+                let isSender = new RegExp(_.sender!, 'g')
+                let inputFrom = inputObj.jid
+                if (inputObj.is_input == "F" && fs.readdirSync(moduleDir).includes(inputObj.feature!) && isFrom.test(inputFrom!) && isSender.test(inputFrom!)) {
+                    await require(path.join(__dirname, 'features', inputObj.feature!)).default(sock, _, inputObj)
+                }
+            }
+        })
 } 

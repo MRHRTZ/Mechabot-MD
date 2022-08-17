@@ -1,15 +1,17 @@
-import { WAVersion } from '@adiwajshing/baileys'
+import { proto, WASocket, WAVersion } from '@adiwajshing/baileys'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as choki from 'chokidar'
 import * as dotenv from 'dotenv'
-import * as util from 'util' 
+import * as util from 'util'
 import axios from 'axios'
 import chalk from 'chalk'
 import figlet from 'figlet'
 import moment from 'moment-timezone'
 import Menu from '../models/Menu'
 import { MenuField } from './Types/Menu'
+import Input from '../models/Input'
+import { MessageMaterial } from './Types/ProcessWebMessageTypes'
 moment().tz('Asia/Jakarta').format('HH:mm:ss DD/MM/YYYY')
 
 dotenv.config({ path: (path.join(__dirname, '../../.env')) })
@@ -24,13 +26,30 @@ function showTitle() {
 
 async function logger(params: any, type: string = 'info' || 'error' || 'body', opts: any = {}) {
     let timeNow = chalk.bgGrey(moment(new Date().valueOf()).format('HH:mm:ss DD/MM/YYYY'))
+    let paddingSize = 12;
     if (type == 'body') {
         let gcSubject = {}
         if (opts?.isGroup) gcSubject = (await opts.getGroupMetadata())?.subject
-        console.log(chalk.greenBright.bold(`[ ${process.env.botname} ]`), timeNow, chalk.magentaBright('-'), chalk.blue('From:'), chalk.white(opts.pushname ?? '-'), chalk.blue('Type:'), chalk.white(opts.type), chalk.blue('Message:'), chalk.white(opts.body ?? '-'), (opts?.isGroup ? (chalk.blue('In: ') + chalk.white(gcSubject)) : ''))
+        console.log("\n\n==================" + chalk.greenBright.bold("[ Message ]") + "==================");
+        console.log(chalk.blue('Time'.padEnd(paddingSize) + ':'), timeNow);
+        if (opts?.isGroup) {
+            console.log(chalk.blue('Group Name'.padEnd(paddingSize) + ':'), chalk.white(gcSubject) ?? '-');
+        }
+        console.log(chalk.blue('From'.padEnd(paddingSize) + ':'), chalk.white(opts.pushname ?? '-'));
+        console.log(chalk.blue('Type'.padEnd(paddingSize) + ':'), chalk.white(opts.type));
+        console.log(chalk.blue('Message'.padEnd(paddingSize) + ':'), chalk.white(opts.body ?? '-'));
+        console.log('===================================================\n');
+    } else if (type == 'info') {
+        console.log("\n\n==================" + chalk.yellowBright.bold("[ Information ]") + "==================");
+        console.log(chalk.blue('Time'.padEnd(paddingSize) + ':'), timeNow);
+        console.log(chalk.blue('Info Message'.padEnd(paddingSize) + ':'), chalk.whiteBright(params));
+        console.log('===================================================\n');
+    } else if (type == 'error') {
+        console.log("\n\n==================" + chalk.redBright.bold("[ Error ]") + "==================");
+        console.log(chalk.blue('Time'.padEnd(paddingSize) + ':'), timeNow);
+        console.log(chalk.blue('Err Message'.padEnd(paddingSize) + ':'), chalk.gray(params));
+        console.log('===================================================\n');
     }
-    if (type == 'info') console.log(chalk.greenBright.bold(`[ ${process.env.botname} ]`), timeNow, chalk.magentaBright('-'), chalk.yellowBright('[ INFO ]'), chalk.whiteBright(params))
-    if (type == 'error') console.log(chalk.greenBright.bold(`[ ${process.env.botname} ]`), timeNow, chalk.magentaBright('-'), chalk.redBright('[ ERROR ]'), chalk.red(params))
 }
 
 function findDiff(arraySearch: string[], oldArray: string[]) {
@@ -118,6 +137,12 @@ async function updateMenuDB(menuObj: MenuField) {
     }
 }
 
+async function getInputList() {
+    const input = new Input()
+    const inputList = await input.queryList()
+    return inputList
+}
+
 function registerFeature(moduleDir: string) {
     const watcher = choki.watch(moduleDir, {
         ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -164,6 +189,40 @@ function registerFeature(moduleDir: string) {
         })
 }
 
+function objectToQueryString(obj) {
+    var str: Array<string> = [];
+    for (var p in obj)
+        if (obj.hasOwnProperty(p)) {
+            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+        }
+    return str.join("&");
+}
+
+async function waitMessage(sock: WASocket, m: MessageMaterial, message?: string, ) {
+    const msgWait: proto.IWebMessageInfo = await m?.replyMessage({ text: message ?? '' })
+    await sock.sendMessage(m.from!, { react: { text: "⌛", key: msgWait.key } })
+    return msgWait
+}
+
+async function reactRemove(sock: WASocket, m: MessageMaterial, msgWait: proto.IWebMessageInfo) {
+    await sock.sendMessage(m.from!, { react: { text: "", key: msgWait.key, senderTimestampMs: Date.now() } })
+}
+
+async function reactWait(sock: WASocket, m: MessageMaterial, msgWait: proto.IWebMessageInfo) {
+    return await sock.sendMessage(m.from!, { react: { text: "⌛", key: msgWait.key } })
+}
+
+async function reactSuccess(sock: WASocket, m: MessageMaterial, msgWait: proto.IWebMessageInfo) {
+    return await sock.sendMessage(m.from!, { react: { text: "✅", key: msgWait.key } })
+}
+
+async function reactFailed(sock: WASocket, m: MessageMaterial, msgWait: proto.IWebMessageInfo) {
+    return await sock.sendMessage(m.from!, { react: { text: "❌", key: msgWait.key } })
+}
+
+function timeTags(slice: number) {
+    return "#" + new Date().valueOf().toString().slice(slice)
+}
 
 export {
     getWAVersion,
@@ -175,5 +234,13 @@ export {
     findDiff,
     registerFeature,
     checkMenu,
-    updateMenuDB
+    updateMenuDB,
+    getInputList,
+    objectToQueryString,
+    waitMessage,
+    timeTags,
+    reactWait,
+    reactRemove,
+    reactSuccess,
+    reactFailed
 }

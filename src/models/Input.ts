@@ -1,11 +1,11 @@
 import DB from '../lib/ConnectDB'
-import { MenuField, MenuFieldUpdate, MenuList, queryStatus } from '../lib/Types/Menu'
+import { InputField, InputFieldUpdate, InputFieldNew, InputList, queryStatus } from '../lib/Types/Input'
 
-export default class Menu {
-    private _table: string = 'menu'
+export default class Input {
+    private _table: string = 'user_input'
     constructor() {}
 
-    public queryList: () => Promise<MenuList> = () => {
+    public queryList: () => Promise<InputList> = () => {
         return new Promise((resolve, reject) => {
             var sSQL = `SELECT * FROM ${this._table}`
             DB.query(sSQL, null, (data, err) => {
@@ -15,11 +15,11 @@ export default class Menu {
         })
     }
 
-    public new: (params: MenuField) => Promise<queryStatus> = (params: MenuField) => {
+    public new: (params: InputFieldNew) => Promise<queryStatus> = (params: InputField) => {
         return new Promise((resolve, reject) => {
             const columns = Object.keys(params);
             const values = Object.values(params);
-            if (columns.length == 0) return reject({ status: false, message: 'menu.new : no parameter' })
+            if (columns.length == 0) return reject({ status: false, message: 'input.new : no parameter' })
             var sSQL = `INSERT INTO ${this._table}(${columns.join(",")}) VALUES (`
             for (let i = 0; i < values.length; i++) {
                 sSQL += "?";
@@ -35,12 +35,12 @@ export default class Menu {
         })
     }
 
-    public update: (params: MenuFieldUpdate) => Promise<queryStatus> = (params: MenuFieldUpdate) => {
+    public update: (params: InputFieldUpdate) => Promise<queryStatus> = (params: InputFieldUpdate) => {
         return new Promise((resolve, reject) => {
             const columns = Object.keys(params)
             const values = Object.values(params);
-            var sSQL = `UPDATE ${this._table} SET ${columns.join(" = ?, ")} = ? WHERE module_id="${params.module_id}"`
-            if (columns.length == 0) return reject({ status: false, message: 'menu.update : no parameter' })
+            var sSQL = `UPDATE ${this._table} SET ${columns.join(" = ?, ")} = ? WHERE jid="${params.jid}" AND feature="${params.feature?.split("#")[0]}"`
+            if (columns.length == 0) return reject({ status: false, message: 'input.update : no parameter' })
             DB.query(sSQL, values, (data, err) => {
                 if (err) return reject({ status: false, message: err })
                 resolve({ status: true, message: data })

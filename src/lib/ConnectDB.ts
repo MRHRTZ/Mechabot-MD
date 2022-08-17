@@ -15,6 +15,7 @@ var pool = mysql.createPool({
 
 var DB = (function () {
     function _query(query: string, params, callback: (msg, err?) => void) {
+        pool.setMaxListeners(0)
         pool.getConnection(function (err, connection) {
             if (err) {
                 callback(null, err);

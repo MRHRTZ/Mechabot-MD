@@ -1,4 +1,4 @@
-import makeWASocket, { DisconnectReason, useMultiFileAuthState, proto, WASocket } from '@adiwajshing/baileys'
+import makeWASocket, { DisconnectReason, useMultiFileAuthState, proto, WASocket, Browsers } from '@adiwajshing/baileys'
 import { Boom } from '@hapi/boom'
 import { getWAVersion, showTitle, logger, registerFeature } from '../lib/Utils'
 import handleMessage from './2.handleMessage'
@@ -6,11 +6,13 @@ import P from 'pino'
 import processMessage from './1.processWebMessage'
 import * as path from 'path'
 import * as fs from 'fs'
+import { setMaxListeners } from 'form-data'
 
 showTitle()
 logger(`Loading scripts ...`)
 async function connectMecha() {
     try {
+        process.setMaxListeners(0)
         logger('Waiting for connection...', 'info')
         const { state, saveCreds } = await useMultiFileAuthState('.MECHA')
         const version = await getWAVersion()
@@ -18,6 +20,7 @@ async function connectMecha() {
             logger: P({ level: 'error' }),
             printQRInTerminal: true,
             auth: state,
+            browser: Browsers.appropriate('Desktop'),
             version
         })
         sock.ev.on('connection.update', (update) => {

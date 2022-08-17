@@ -18,29 +18,38 @@ export default function processMessage(conn: WASocket, m: { messages: proto.IWeb
                 type == 'imageMessage' ? msg.message?.imageMessage?.caption :
                     type == 'videoMessage' ? msg.message?.videoMessage?.caption :
                         type == 'buttonsMessage' ? msg.message?.buttonsResponseMessage?.selectedButtonId + '||' + msg.message?.buttonsResponseMessage?.selectedDisplayText :
-                            type == 'listResponseMessage' ? msg.message?.listResponseMessage?.singleSelectReply?.selectedRowId : ''
+                            type == 'listResponseMessage' ? msg.message?.listResponseMessage?.singleSelectReply?.selectedRowId :
+                                type == 'listMessage' ? msg.message?.listMessage?.description :
+                                    type == 'reactionMessage' ? msg.message?.reactionMessage?.text : ''
     ) : String(type) == 'viewOnceMessage' ? (
         type == 'conversation' ? msg.message?.viewOnceMessage?.message?.conversation :
             type == 'extendedTextMessage' ? msg.message?.viewOnceMessage?.message?.extendedTextMessage?.text :
                 type == 'imageMessage' ? msg.message?.viewOnceMessage?.message?.imageMessage?.caption :
                     type == 'videoMessage' ? msg.message?.viewOnceMessage?.message?.videoMessage?.caption :
                         type == 'buttonsMessage' ? msg.message?.viewOnceMessage?.message?.buttonsResponseMessage?.selectedButtonId + '||' + msg.message?.viewOnceMessage?.message?.buttonsResponseMessage?.selectedDisplayText :
-                            type == 'listResponseMessage' ? msg.message?.viewOnceMessage?.message?.listResponseMessage?.singleSelectReply?.selectedRowId : ''
+                            type == 'listResponseMessage' ? msg.message?.viewOnceMessage?.message?.listResponseMessage?.singleSelectReply?.selectedRowId :
+                                type == 'listMessage' ? msg.message?.viewOnceMessage?.message?.listMessage?.description :
+                                    type == 'reactionMessage' ? msg.message?.viewOnceMessage?.message?.reactionMessage?.text : ''
+
     ) : String(type) == 'ephemeralMessage' ? (
         type == 'conversation' ? msg.message?.ephemeralMessage?.message?.conversation :
             type == 'extendedTextMessage' ? msg.message?.ephemeralMessage?.message?.extendedTextMessage?.text :
                 type == 'imageMessage' ? msg.message?.ephemeralMessage?.message?.imageMessage?.caption :
                     type == 'videoMessage' ? msg.message?.ephemeralMessage?.message?.videoMessage?.caption :
                         type == 'buttonsMessage' ? msg.message?.ephemeralMessage?.message?.buttonsResponseMessage?.selectedButtonId + '||' + msg.message?.ephemeralMessage?.message?.buttonsResponseMessage?.selectedDisplayText :
-                            type == 'listResponseMessage' ? msg.message?.ephemeralMessage?.message?.listResponseMessage?.singleSelectReply?.selectedRowId : ''
+                            type == 'listResponseMessage' ? msg.message?.ephemeralMessage?.message?.listResponseMessage?.singleSelectReply?.selectedRowId :
+                                type == 'listMessage' ? msg.message?.ephemeralMessage?.message?.listMessage?.description :
+                                    type == 'reactionMessage' ? msg.message?.ephemeralMessage?.message?.reactionMessage?.text : ''
+
+
     ) : ''
     let cmd = body?.toLowerCase().split(" ")[0] || "";
     let prefix = /^[°•π÷×¶∆£¢€¥®™✓_=|~!?@#$%^&.\/\\©^]/.test(cmd) ? cmd.match(/^[°•π÷×¶∆£¢€¥®™✓_=|~!?@#$%^&.\/\\©^]/gi) : "mecha";
     let isGroup = msg.key.remoteJid?.includes('g.us')
-    
+
     var obj: MessageMaterial = {
-        from: msg.key.fromMe ? 'Me' : msg.key.remoteJid,
-        pushname: msg.pushName,
+        from: msg.key.remoteJid,
+        pushname: msg.key.fromMe ? process.env.botname : msg.pushName,
         fromMe: msg.key.fromMe,
         sender: jidDecode(sender!).user,
         type,
@@ -65,25 +74,31 @@ export default function processMessage(conn: WASocket, m: { messages: proto.IWeb
                         type == 'imageMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage?.caption :
                             type == 'videoMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.videoMessage?.caption :
                                 type == 'buttonsMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.buttonsResponseMessage?.selectedButtonId + '||' + msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.buttonsResponseMessage?.selectedDisplayText :
-                                    type == 'listResponseMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.listResponseMessage?.singleSelectReply?.selectedRowId : ''
+                                    type == 'listResponseMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.listResponseMessage?.singleSelectReply?.selectedRowId :
+                                        type == 'listMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.listMessage?.description :
+                                            type == 'reactionMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.reactionMessage?.text : ''
             ) : String(type) == 'viewOnceMessage' ? (
                 type == 'conversation' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message?.conversation :
                     type == 'extendedTextMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message?.extendedTextMessage?.text :
                         type == 'imageMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message?.imageMessage?.caption :
                             type == 'videoMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message?.videoMessage?.caption :
                                 type == 'buttonsMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message?.buttonsResponseMessage?.selectedButtonId + '||' + msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message?.buttonsResponseMessage?.selectedDisplayText :
-                                    type == 'listResponseMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message?.listResponseMessage?.singleSelectReply?.selectedRowId : ''
+                                    type == 'listResponseMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message?.listResponseMessage?.singleSelectReply?.selectedRowId :
+                                        type == 'listMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message?.listMessage?.description :
+                                            type == 'reactionMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message?.reactionMessage?.text : ''
             ) : String(type) == 'ephemeralMessage' ? (
                 type == 'conversation' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.conversation :
                     type == 'extendedTextMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.extendedTextMessage?.text :
                         type == 'imageMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.imageMessage?.caption :
                             type == 'videoMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.videoMessage?.caption :
                                 type == 'buttonsMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.buttonsResponseMessage?.selectedButtonId + '||' + msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.buttonsResponseMessage?.selectedDisplayText :
-                                    type == 'listResponseMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.listResponseMessage?.singleSelectReply?.selectedRowId : ''
+                                    type == 'listResponseMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.listResponseMessage?.singleSelectReply?.selectedRowId :
+                                        type == 'listMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.listMessage?.description :
+                                            type == 'reactionMessage' ? msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.ephemeralMessage?.message?.reactionMessage?.text : ''
             ) : '',
             getBuffer: async () => await downloadMediaMessage(msg.message?.extendedTextMessage?.contextInfo?.quotedMessage as proto.IWebMessageInfo, 'buffer', {})
         },
-        getGroupMetadata: async () => await conn.groupMetadata(msg.key.remoteJid!)
+        getGroupMetadata: async () => (isGroup ? await conn.groupMetadata(msg.key.remoteJid!) : null)
     }
 
     return obj

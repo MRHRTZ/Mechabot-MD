@@ -6,14 +6,14 @@ import * as utils from "../../lib/Utils";
 import { exec } from 'child_process'
 import * as util from 'util'
 
-export default function youtube(sock?: WASocket, m?: MessageMaterial) {
-    const _trigger: string[] = ['youtube', 'yta', 'ytv', 'yt']
+export default function evaluate(sock?: WASocket, m?: MessageMaterial) {
+    const _trigger: string[] = ['>>> ']
     const usingCmd: boolean = !m!.isCommand!
     const _params_require: string[] = ['link yt'] 
     var _obj: MenuField = {
         module_id: 2,
-        name: 'Youtube Downloader',
-        description: 'Youtube video/audio and story download',
+        name: 'Evaluate',
+        description: 'Execute script code',
         required: JSON.stringify(_params_require),
         modulePath: path.basename(__filename),
         featureStatus: 'maintenance',

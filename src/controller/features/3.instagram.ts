@@ -11,7 +11,7 @@ export default function instagram(sock?: WASocket, m?: MessageMaterial) {
     const usingCmd: boolean = !m!.isCommand! 
     const _params_require: string[] = ['link insta'] 
     var _obj: MenuField = {
-        module_id: 1,
+        module_id: 3,
         name: 'Instagram Downloader',
         description: 'All instagram downloader, post, reels, and story, etc.',
         required: JSON.stringify(_params_require),
@@ -20,6 +20,7 @@ export default function instagram(sock?: WASocket, m?: MessageMaterial) {
         triggerMsg: _trigger.join('|'),
     }
     _obj = {..._obj, responseJSON: JSON.stringify(_obj) }
+    if (_obj.featureStatus != 'active' && !m?.isOwner) return _obj
     if (usingCmd) return _obj
     if (!_trigger.includes(m!.command!)) return _obj
     // Place your code here
