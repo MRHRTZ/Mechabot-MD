@@ -22,8 +22,9 @@ interface MessageMaterial {
     mentions: string[],
     isMedia: boolean,
     getBuffer: () => Promise<any>;
-    replyMessage: (anyMessageContent: AnyMessageContent) => Promise<any>;
-    revokeMessage: () => Promise<any>;
+    replyMessage: (anyMessageContent: AnyMessageContent) => Promise<proto.WebMessageInfo | undefined>;
+    revokeMessage: () => Promise<proto.WebMessageInfo | undefined>;
+    reactMessage: (text: string | undefined | null) => Promise<proto.WebMessageInfo | undefined>;
     isGroup: boolean | undefined;
     getGroupMetadata: () => Promise<GroupMetadata | null | undefined>;
     quoted: QuotedMaterial

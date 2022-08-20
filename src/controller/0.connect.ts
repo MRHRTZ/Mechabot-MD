@@ -1,6 +1,6 @@
 import makeWASocket, { DisconnectReason, useMultiFileAuthState, proto, WASocket, Browsers } from '@adiwajshing/baileys'
 import { Boom } from '@hapi/boom'
-import { getWAVersion, showTitle, logger, registerFeature } from '../lib/Utils'
+import { getWAVersion, showTitle, logger } from '../lib/Utils'
 import handleMessage from './2.handleMessage'
 import P from 'pino'
 import processMessage from './1.processWebMessage'

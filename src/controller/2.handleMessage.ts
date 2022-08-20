@@ -6,7 +6,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { MenuField } from '../lib/Types/Menu'
 
-utils.registerFeature(path.join(__dirname, 'features'))
+utils.registerModule(path.join(__dirname, 'features'))
 
 export default async function handleMessage(sock: WASocket, _: MessageMaterial) {
     if (!_ || _.type == 'senderKeyDistributionMessage') return

@@ -71,11 +71,11 @@ export default async function youtubePlay(sock?: WASocket, m?: MessageMaterial, 
                     sections
                 }
                 const sentMsg = await sock?.sendMessage(m?.from!, listMessage)
-                await utils.reactRemove(sock!, m!, waitMsg)
+                await utils.reactRemove(sock!, m!, waitMsg!)
                 await utils.reactSuccess(sock!, m!, sentMsg!)
             }).catch(e => {
-                utils.reactFailed(sock!, m!, waitMsg)
-                utils.logger(e, "error")
+                utils.reactFailed(sock!, m!, waitMsg!)
+                utils.logger(e, "error", { sourceFile: path.basename(__filename) })
             })
     }
     if (usingCmd) return _obj

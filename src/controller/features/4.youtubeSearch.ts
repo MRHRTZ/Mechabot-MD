@@ -41,7 +41,7 @@ export default async function youtubeSearch(sock?: WASocket, m?: MessageMaterial
                     sections[0].rows.push({
                         title: item.channelTitle,
                         rowId: ".ytdownload https://www.youtube.com/watch?v=" + item.id,
-                        description: item.title + " || " + item.length.accessibility.accessibilityData.label
+                        description: item.title + " || " + item.length.simpleText
                     })
                 })
                 let nextPageCount = page + 1
@@ -60,11 +60,11 @@ export default async function youtubeSearch(sock?: WASocket, m?: MessageMaterial
                 }
 
                 const sentMsg = await sock?.sendMessage(m?.from!, listMessage)
-                await utils.reactRemove(sock!, m!, waitMsg)
+                await utils.reactRemove(sock!, m!, waitMsg!)
                 await utils.reactSuccess(sock!, m!, sentMsg!)
             }).catch(e => {
-                utils.reactFailed(sock!, m!, waitMsg)
-                utils.logger(e, "error")
+                utils.reactFailed(sock!, m!, waitMsg!)
+                utils.logger(e, "error", { sourceFile: path.basename(__filename) })
             })
     }
     if (usingCmd) return _obj
@@ -88,7 +88,7 @@ export default async function youtubeSearch(sock?: WASocket, m?: MessageMaterial
                     sections[0].rows.push({
                         title: item.channelTitle,
                         rowId: ".ytdownload https://www.youtube.com/watch?v=" + item.id,
-                        description: item.title + " || " + item.length.accessibility.accessibilityData.label
+                        description: item.title + " || " + item.length.simpleText
                     })
                 })
                 let nextPageCount = nextPageInt + 1
@@ -107,11 +107,11 @@ export default async function youtubeSearch(sock?: WASocket, m?: MessageMaterial
                 }
 
                 const sentMsg = await sock?.sendMessage(m?.from!, listMessage)
-                await utils.reactRemove(sock!, m!, waitMsg)
+                await utils.reactRemove(sock!, m!, waitMsg!)
                 await utils.reactSuccess(sock!, m!, sentMsg!)
             }).catch(e => {
-                utils.reactFailed(sock!, m!, waitMsg)
-                utils.logger(e, "error")
+                utils.reactFailed(sock!, m!, waitMsg!)
+                utils.logger(e, "error", { sourceFile: path.basename(__filename) })
             })
     } else if (!input && m?.args[1] != "n3x7p4g3") {
         userInput.new({ jid: `${m?.from}_${m?.sender}`, feature: path.basename(__filename), input_type: 'keyword', is_input: 'F' })

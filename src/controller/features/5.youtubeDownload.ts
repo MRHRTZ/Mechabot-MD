@@ -75,19 +75,21 @@ export default async function youtubeDL(sock?: WASocket, m?: MessageMaterial) {
                 const downloadURL: any = dURL
                 let thumb_caption = `*Downloading* - _${title}_ ...\n\n*Type* : ${type}\n*Quality* : ${quality}`
                 const msgDownloading = await m?.replyMessage({ image: { url: thumbnail }, caption: thumb_caption })
-                await utils.reactWait(sock!, m!, msgDownloading)
-
+                await utils.reactWait(sock!, m!, msgDownloading!)
+                
                 const fileBuffer: any = await utils.getBuffer(downloadURL)
                 if (type == 'mp4') {
                     const sentMsg = await sock?.sendMessage(m?.from!, { video: fileBuffer, fileName: title })
-                    await utils.reactRemove(sock!, m!, msgDownloading)
+                    await utils.reactRemove(sock!, m!, msgDownloading!)
                     await utils.reactSuccess(sock!, m!, sentMsg!)
                 } else {
                     const sentMsg = await sock?.sendMessage(m?.from!, { audio: fileBuffer, fileName: title, mimetype: 'audio/mp4'})
-                    await utils.reactRemove(sock!, m!, msgDownloading)
+                    await utils.reactRemove(sock!, m!, msgDownloading!)
                     await utils.reactSuccess(sock!, m!, sentMsg!)
                 }
-            }).catch(console.log);
+            }).catch(e => {
+                utils.logger(e, "error", { sourceFile: path.basename(__filename) })
+            });
     } else {
         m?.replyMessage({ text: 'Format salah / _Invalid Format_ ❌' })
     }

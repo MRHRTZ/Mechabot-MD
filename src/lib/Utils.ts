@@ -30,25 +30,34 @@ async function logger(params: any, type: string = 'info' || 'error' || 'body', o
     if (type == 'body') {
         let gcSubject = {}
         if (opts?.isGroup) gcSubject = (await opts.getGroupMetadata())?.subject
-        console.log("\n\n==================" + chalk.greenBright.bold("[ Message ]") + "==================");
-        console.log(chalk.blue('Time'.padEnd(paddingSize) + ':'), timeNow);
-        if (opts?.isGroup) {
-            console.log(chalk.blue('Group Name'.padEnd(paddingSize) + ':'), chalk.white(gcSubject) ?? '-');
+        console.log("\n\n" + chalk.redBright("==================") + chalk.greenBright.bold("[ Message ]") + chalk.redBright("=================="));
+        console.log(chalk.blueBright('Time'.padEnd(paddingSize) + ':'), timeNow);
+        if (opts?.sourceFile) {
+            console.log(chalk.blueBright('Source file'.padEnd(paddingSize) + ':'), chalk.white(opts.sourceFile) ?? '-');
         }
-        console.log(chalk.blue('From'.padEnd(paddingSize) + ':'), chalk.white(opts.pushname ?? '-'));
-        console.log(chalk.blue('Type'.padEnd(paddingSize) + ':'), chalk.white(opts.type));
-        console.log(chalk.blue('Message'.padEnd(paddingSize) + ':'), chalk.white(opts.body ?? '-'));
-        console.log('===================================================\n');
+        if (opts?.isGroup) {
+            console.log(chalk.blueBright('Group Name'.padEnd(paddingSize) + ':'), chalk.white(gcSubject) ?? '-');
+        }
+        console.log(chalk.blueBright('From'.padEnd(paddingSize) + ':'), chalk.white(opts.pushname ?? '-'));
+        console.log(chalk.blueBright('Type'.padEnd(paddingSize) + ':'), chalk.white(opts.type));
+        console.log(chalk.blueBright('Message'.padEnd(paddingSize) + ':'), (opts.body) ? chalk.white(opts.body) : chalk.red('-'));
+        console.log(chalk.whiteBright('===============================================\n'));
     } else if (type == 'info') {
-        console.log("\n\n==================" + chalk.yellowBright.bold("[ Information ]") + "==================");
-        console.log(chalk.blue('Time'.padEnd(paddingSize) + ':'), timeNow);
-        console.log(chalk.blue('Info Message'.padEnd(paddingSize) + ':'), chalk.whiteBright(params));
-        console.log('===================================================\n');
+        console.log("\n\n" + chalk.redBright("==================") + chalk.yellow("[ Information ]") + chalk.redBright("=================="));
+        console.log(chalk.blueBright('Time'.padEnd(paddingSize) + ':'), timeNow);
+        if (opts?.sourceFile) {
+            console.log(chalk.blueBright('Source file'.padEnd(paddingSize) + ':'), chalk.white(opts.sourceFile) ?? '-');
+        }
+        console.log(chalk.blueBright('Info Message'.padEnd(paddingSize) + ':'), chalk.whiteBright(params));
+        console.log(chalk.whiteBright('===================================================\n'));
     } else if (type == 'error') {
-        console.log("\n\n==================" + chalk.redBright.bold("[ Error ]") + "==================");
-        console.log(chalk.blue('Time'.padEnd(paddingSize) + ':'), timeNow);
-        console.log(chalk.blue('Err Message'.padEnd(paddingSize) + ':'), chalk.gray(params));
-        console.log('===================================================\n');
+        console.log("\n\n" + chalk.redBright("==================") + chalk.redBright.bold("[ Error ]") + chalk.redBright("=================="));
+        console.log(chalk.blueBright('Time'.padEnd(paddingSize) + ':'), timeNow);
+        if (opts?.sourceFile) {
+            console.log(chalk.blueBright('Source file'.padEnd(paddingSize) + ':'), chalk.white(opts.sourceFile) ?? '-');
+        }
+        console.log(chalk.blueBright('Err Message'.padEnd(paddingSize) + ':'), chalk.gray(params));
+        console.log(chalk.whiteBright('===================================================\n'));
     }
 }
 
@@ -143,7 +152,7 @@ async function getInputList() {
     return inputList
 }
 
-function registerFeature(moduleDir: string) {
+function registerModule(moduleDir: string) {
     const watcher = choki.watch(moduleDir, {
         ignored: /(^|[\/\\])\../, // ignore dotfiles
         persistent: true
@@ -199,25 +208,25 @@ function objectToQueryString(obj) {
 }
 
 async function waitMessage(sock: WASocket, m: MessageMaterial, message?: string, ) {
-    const msgWait: proto.IWebMessageInfo = await m?.replyMessage({ text: message ?? '' })
-    await sock.sendMessage(m.from!, { react: { text: "⌛", key: msgWait.key } })
+    const msgWait: proto.WebMessageInfo | undefined = await m?.replyMessage({ text: message ?? '' })
+    await sock.sendMessage(m.from!, { react: { text: "⌛", key: msgWait?.key } })
     return msgWait
 }
 
-async function reactRemove(sock: WASocket, m: MessageMaterial, msgWait: proto.IWebMessageInfo) {
-    await sock.sendMessage(m.from!, { react: { text: "", key: msgWait.key, senderTimestampMs: Date.now() } })
+async function reactRemove(sock: WASocket, m: MessageMaterial, msgWait: proto.WebMessageInfo | undefined) {
+    await sock.sendMessage(m.from!, { react: { text: "", key: msgWait?.key, senderTimestampMs: Date.now() } })
 }
 
-async function reactWait(sock: WASocket, m: MessageMaterial, msgWait: proto.IWebMessageInfo) {
-    return await sock.sendMessage(m.from!, { react: { text: "⌛", key: msgWait.key } })
+async function reactWait(sock: WASocket, m: MessageMaterial, msgWait: proto.WebMessageInfo | undefined) {
+    return await sock.sendMessage(m.from!, { react: { text: "⌛", key: msgWait?.key } })
 }
 
-async function reactSuccess(sock: WASocket, m: MessageMaterial, msgWait: proto.IWebMessageInfo) {
-    return await sock.sendMessage(m.from!, { react: { text: "✅", key: msgWait.key } })
+async function reactSuccess(sock: WASocket, m: MessageMaterial, msgWait: proto.WebMessageInfo | undefined) {
+    return await sock.sendMessage(m.from!, { react: { text: "✅", key: msgWait?.key } })
 }
 
-async function reactFailed(sock: WASocket, m: MessageMaterial, msgWait: proto.IWebMessageInfo) {
-    return await sock.sendMessage(m.from!, { react: { text: "❌", key: msgWait.key } })
+async function reactFailed(sock: WASocket, m: MessageMaterial, msgWait: proto.WebMessageInfo | undefined) {
+    return await sock.sendMessage(m.from!, { react: { text: "❌", key: msgWait?.key } })
 }
 
 function timeTags(slice: number) {
@@ -232,7 +241,7 @@ export {
     showTitle,
     logger,
     findDiff,
-    registerFeature,
+    registerModule,
     checkMenu,
     updateMenuDB,
     getInputList,
