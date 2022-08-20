@@ -4,6 +4,8 @@ import * as fs from 'fs'
 import * as choki from 'chokidar'
 import * as dotenv from 'dotenv'
 import * as util from 'util'
+import * as cp from 'child_process'
+import DB from '../lib/ConnectDB'
 import axios from 'axios'
 import chalk from 'chalk'
 import figlet from 'figlet'
@@ -19,9 +21,14 @@ dotenv.config({ path: (path.join(__dirname, '../../.env')) })
 const API_BASEURL: string = 'http://localhost:' + process.env.apiport
 const WAPI_VERSION_URL: string = 'https://web.whatsapp.com/check-update?version=0&platform=web'
 
-function showTitle() {
+async function showTitle({ wa_version, mecha_commit }) {
+    const sql_version = await getSQLVersion()
     console.log(chalk.redBright(figlet.textSync('Mecha-V3', 'Fire Font-s')));
-    console.log(chalk.blue('Creator'), ':', chalk.white('MRHRTZ\n'));
+    console.log(chalk.cyan('Creator'), '     :', chalk.white('MRHRTZ'));
+    console.log(chalk.cyan('Mecha update'), ':', chalk.white(mecha_commit));
+    console.log(chalk.cyan('WA Version'), '  :', chalk.white(wa_version ?? 'unknown'));
+    console.log(chalk.cyan('SQL Version'), ' :', chalk.white(sql_version ?? 'unknown'));
+    console.log(chalk.cyan('Status'), '      :', chalk.green('Ready!\n'));
 }
 
 async function logger(params: any, type: string = 'info' || 'error' || 'body', opts: any = {}) {
@@ -30,7 +37,7 @@ async function logger(params: any, type: string = 'info' || 'error' || 'body', o
     if (type == 'body') {
         let gcSubject = {}
         if (opts?.isGroup) gcSubject = (await opts.getGroupMetadata())?.subject
-        console.log("\n\n" + chalk.redBright("==================") + chalk.greenBright.bold("[ Message ]") + chalk.redBright("=================="));
+        console.log("\n" + chalk.redBright("==================") + chalk.greenBright.bold("[ Message ]") + chalk.redBright("=================="));
         console.log(chalk.blueBright('Time'.padEnd(paddingSize) + ':'), timeNow);
         if (opts?.sourceFile) {
             console.log(chalk.blueBright('Source file'.padEnd(paddingSize) + ':'), chalk.white(opts.sourceFile) ?? '-');
@@ -43,7 +50,7 @@ async function logger(params: any, type: string = 'info' || 'error' || 'body', o
         console.log(chalk.blueBright('Message'.padEnd(paddingSize) + ':'), (opts.body) ? chalk.white(opts.body) : chalk.red('-'));
         console.log(chalk.whiteBright('===============================================\n'));
     } else if (type == 'info') {
-        console.log("\n\n" + chalk.redBright("==================") + chalk.yellow("[ Information ]") + chalk.redBright("=================="));
+        console.log("\n" + chalk.redBright("==================") + chalk.yellow("[ Information ]") + chalk.redBright("=================="));
         console.log(chalk.blueBright('Time'.padEnd(paddingSize) + ':'), timeNow);
         if (opts?.sourceFile) {
             console.log(chalk.blueBright('Source file'.padEnd(paddingSize) + ':'), chalk.white(opts.sourceFile) ?? '-');
@@ -51,7 +58,7 @@ async function logger(params: any, type: string = 'info' || 'error' || 'body', o
         console.log(chalk.blueBright('Info Message'.padEnd(paddingSize) + ':'), chalk.whiteBright(params));
         console.log(chalk.whiteBright('===================================================\n'));
     } else if (type == 'error') {
-        console.log("\n\n" + chalk.redBright("==================") + chalk.redBright.bold("[ Error ]") + chalk.redBright("=================="));
+        console.log("\n" + chalk.redBright("==================") + chalk.redBright.bold("[ Error ]") + chalk.redBright("=================="));
         console.log(chalk.blueBright('Time'.padEnd(paddingSize) + ':'), timeNow);
         if (opts?.sourceFile) {
             console.log(chalk.blueBright('Source file'.padEnd(paddingSize) + ':'), chalk.white(opts.sourceFile) ?? '-');
@@ -207,7 +214,7 @@ function objectToQueryString(obj) {
     return str.join("&");
 }
 
-async function waitMessage(sock: WASocket, m: MessageMaterial, message?: string, ) {
+async function waitMessage(sock: WASocket, m: MessageMaterial, message?: string,) {
     const msgWait: proto.WebMessageInfo | undefined = await m?.replyMessage({ text: message ?? '' })
     await sock.sendMessage(m.from!, { react: { text: "⌛", key: msgWait?.key } })
     return msgWait
@@ -233,6 +240,20 @@ function timeTags(slice: number) {
     return "#" + new Date().valueOf().toString().slice(slice)
 }
 
+function getExec(cmd) {
+    return cp.execSync(cmd).toString();
+}
+
+function getSQLVersion() {
+    return new Promise((resolve, reject) => {
+        var sSQL = 'SELECT VERSION()'
+        DB.query(sSQL, '', (data, err) => {
+            if (err) return reject(err)
+            resolve(data[0]['VERSION()'])
+        })
+    })
+}
+
 export {
     getWAVersion,
     getAPI,
@@ -251,5 +272,7 @@ export {
     reactWait,
     reactRemove,
     reactSuccess,
-    reactFailed
+    reactFailed,
+    getExec,
+    getSQLVersion
 }

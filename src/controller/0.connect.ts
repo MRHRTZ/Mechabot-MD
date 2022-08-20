@@ -4,12 +4,12 @@ import { getWAVersion, showTitle, logger } from '../lib/Utils'
 import handleMessage from './2.handleMessage'
 import P from 'pino'
 import processMessage from './1.processWebMessage'
+import * as utils from '../lib/Utils'
 import * as path from 'path'
 import * as fs from 'fs'
 import { setMaxListeners } from 'form-data'
 
-showTitle()
-logger(`Loading scripts ...`)
+
 async function connectMecha() {
     try {
         process.setMaxListeners(0)
@@ -17,13 +17,13 @@ async function connectMecha() {
         const { state, saveCreds } = await useMultiFileAuthState('.MECHA')
         const version = await getWAVersion()
         const sock = makeWASocket({
-            logger: P({ level: 'error' }),
+            logger: P({ level: 'silent' }),
             printQRInTerminal: true,
             auth: state,
             browser: Browsers.appropriate('Desktop'),
             version
         })
-        sock.ev.on('connection.update', (update) => {
+        sock.ev.on('connection.update', async (update) => {
             const { connection, lastDisconnect } = update
             if (connection === 'close') {
                 const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut
@@ -34,6 +34,7 @@ async function connectMecha() {
                 }
             } else if (connection === 'open') {
                 logger('Connected to server!', 'info')
+                await showTitle({ wa_version: version.join(','), mecha_commit: utils.getExec('git log -1 --pretty=%B').replace(/\n/g, '') })
             }
         })
         sock.ev.on('messages.upsert', async m => {

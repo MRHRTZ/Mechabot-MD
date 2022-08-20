@@ -6,7 +6,7 @@ import { logger } from './Utils';
 dotenv.config({ path: path.join(__dirname, '..', '..', '.env') })
 
 var pool = mysql.createPool({
-    connectionLimit : 10,
+    connectionLimit : 0,
     host: process.env.mysql_hostname,
     user: process.env.mysql_username,
     password: process.env.mysql_password,
